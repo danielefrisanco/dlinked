@@ -104,18 +104,21 @@ jobs:
       with:
         ruby-version: 3.3 # Use the latest version for publishing
         bundler-cache: false # We only need the runtime
-
+    - name: Setup RubyGems Authentication
+      uses: rubygems/configure-rubygems-credentials@v1
+      with:
+        api_key: ${{ secrets.RUBYGEMS_API_KEY }}
     - name: Download Gem Artifact
       uses: actions/download-artifact@v4
       with:
         name: dlinked-gem
         path: pkg/
         
-    - name: Set up RubyGems credentials
-      run: |
-        mkdir -p ~/.gem
-        echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" > ~/.gem/credentials
-        chmod 0600 ~/.gem/credentials
+    # - name: Set up RubyGems credentials
+    #   run: |
+    #     mkdir -p ~/.gem
+    #     echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" > ~/.gem/credentials
+    #     chmod 0600 ~/.gem/credentials
 
     - name: Push Gem to RubyGems.org
       # The gem file is expected to be in the 'pkg/' directory

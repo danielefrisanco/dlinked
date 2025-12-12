@@ -13,7 +13,10 @@ Gem::Specification.new do |spec|
   spec.description   = "Provides a native Doubly Linked List data structure in Ruby, focusing on O(1) performance for head/tail operations and standard Enumerable compatibility."
   spec.homepage      = "https://github.com/danielefrisanco/dlinked"
   spec.license       = "MIT"
-
+  spec.documentation_uri = 'https://danielefrisanco.github.io/dlinked/'
+  spec.source_code_uri = 'https://github.com/danielefrisanco/dlinked'
+  spec.bug_tracker_uri = 'https://github.com/danielefrisanco/dlinked/issues'
+  spec.changelog_uri = 'https://github.com/danielefrisanco/dlinked/blob/main/CHANGELOG.md'
   spec.required_ruby_version = ">= 2.7.0"
   
   # --- Files to Include in the Gem ---
