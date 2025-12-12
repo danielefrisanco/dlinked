@@ -1,0 +1,78 @@
+# .github/workflows/release.yml
+
+name: Publish Ruby Gem
+
+# This workflow runs when:
+on:
+  push:
+    branches:
+      - main # Run tests and build on every push to main
+  # Run the build and release steps ONLY when a new tag is pushed (e.g., v0.1.0)
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: Run Tests & Build Gem
+    runs-on: ubuntu-latest
+    
+    # Use a matrix to test across common Ruby versions (e.g., 3.0, 3.1, 3.2, 3.3)
+    strategy:
+      matrix:
+        ruby: ['3.1', '3.2', '3.3']
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true # Installs dependencies from Gemfile.lock
+
+    - name: Run Tests with SimpleCov
+      run: bundle exec rake test
+
+    - name: Upload Test Coverage Report (Artifact)
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-${{ matrix.ruby }}
+        path: coverage/
+
+    # Only build the .gem file on the latest stable Ruby version
+    - name: Build Gem
+      if: matrix.ruby == '3.3'
+      run: bundle exec rake build
+
+    - name: Upload Gem Artifact
+      if: matrix.ruby == '3.3'
+      uses: actions/upload-artifact@v4
+      with:
+        name: dlinked-gem
+        path: pkg/
+  
+  publish:
+    name: Publish to RubyGems
+    runs-on: ubuntu-latest
+    needs: test # Only run this job if the 'test' job passed
+    
+    # This step only executes when a release is published (a tag is pushed)
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+    - name: Download Gem Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dlinked-gem
+        path: pkg/
+        
+    - name: Publish Gem
+      uses: rubygems/configure-rubygems-credentials@v1
+      with:
+        # This secret must be set in your GitHub Repository Settings
+        api_key: ${{ secrets.RUBYGEMS_API_KEY }}
+
+    - name: Push Gem to RubyGems.org
+      # The gem file is expected to be in the 'pkg/' directory
+      run: gem push pkg/*.gem
