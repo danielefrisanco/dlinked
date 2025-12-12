@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  File: README
+  
+    &mdash; Documentation by YARD 0.9.38
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" />
+
+<script type="text/javascript">
+  pathId = "README";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index</a> &raquo; 
+    <span class="title">File: README</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><div id='filecontents'>
+<h1 id="label-DLinked">DLinked</h1>
+
+<p>A fast, lightweight doubly linked list implementation for Ruby.</p>
+
+<h2 id="label-Features">Features</h2>
+<ul><li>
+<p><strong>Lightweight</strong>: Minimal memory footprint using optimized node class</p>
+</li><li>
+<p><strong>Fast</strong>: O(1) operations for insertion/deletion at both ends</p>
+</li><li>
+<p><strong>Ruby-native</strong>: Includes Enumerable for full integration with Ruby</p>
+</li><li>
+<p><strong>Bidirectional</strong>: Iterate forward or backward efficiently</p>
+</li></ul>
+
+<h2 id="label-Installation">Installation</h2>
+
+<p>Add this line to your application’s Gemfile:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dlinked</span><span class='tstring_end'>&#39;</span></span>
+</code></pre>
+
+<p>Or install it yourself:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_gem'>gem</span> <span class='id identifier rubyid_install'>install</span> <span class='id identifier rubyid_dlinked'>dlinked</span>
+</code></pre>
+
+<h2 id="label-Test">Test</h2>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_ruby'>ruby</span> <span class='id identifier rubyid_test'>test</span><span class='op'>/</span><span class='id identifier rubyid_test_d_linked_list'>test_d_linked_list</span><span class='period'>.</span><span class='id identifier rubyid_rb'>rb</span>
+</code></pre>
+
+<h2 id="label-Usage">Usage</h2>
+
+<h3 id="label-1.+Basic+Initialization+and+O-281-29+Operations">1. Basic Initialization and O(1) Operations</h3>
+
+<p>Demonstrate creating the list, adding elements to both ends, and removing them quickly.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dlinked</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># 1. Initialization
+</span><span class='id identifier rubyid_list'>list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># =&gt; 0
+</span>
+<span class='comment'># 2. O(1) Prepend (Add to Head)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_prepend'>prepend</span><span class='lparen'>(</span><span class='int'>20</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_prepend'>prepend</span><span class='lparen'>(</span><span class='int'>10</span><span class='rparen'>)</span> <span class='comment'># Using method chaining
+</span><span class='comment'># The list now looks like: [10, 20]
+</span>
+<span class='comment'># 3. O(1) Append (Add to Tail)
+</span><span class='id identifier rubyid_list'>list</span> <span class='op'>&lt;&lt;</span> <span class='int'>30</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_append'>append</span><span class='lparen'>(</span><span class='int'>40</span><span class='rparen'>)</span>
+<span class='comment'># The list now looks like: [10, 20, 30, 40]
+</span>
+<span class='comment'># 4. O(1) Removal
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span> <span class='comment'># =&gt; 10 (Removes from head)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>   <span class='comment'># =&gt; 40 (Removes from tail)
+</span><span class='comment'># The list now looks like: [20, 30]
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [20, 30]
+</span></code></pre>
+
+<h3 id="label-2.+Array-Like+Access+and+Assignment">2. Array-Like Access and Assignment</h3>
+
+<p>Show users how the list behaves like a Ruby Array, utilizing the [] and []= methods you implemented.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_list'>list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_list'>list</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>B</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>D</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># 1. Access by Index
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='int'>2</span><span class='rbracket'>]</span>   <span class='comment'># =&gt; &#39;C&#39;
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='op'>-</span><span class='int'>1</span><span class='rbracket'>]</span>  <span class='comment'># =&gt; &#39;D&#39; (Accessing from the tail)
+</span>
+<span class='comment'># 2. Element Assignment (O(n) but familiar)
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>B_NEW</span><span class='tstring_end'>&#39;</span></span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;A&quot;, &quot;B_NEW&quot;, &quot;C&quot;, &quot;D&quot;]
+</span>
+<span class='comment'># 3. Slice/Range Access
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;B_NEW&quot;, &quot;C&quot;] (start at 1, length 2)
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='int'>0</span><span class='op'>..</span><span class='int'>2</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;A&quot;, &quot;B_NEW&quot;, &quot;C&quot;] (using a Range)
+</span>
+<span class='comment'># 4. Slice Replacement (Deletion and Insertion)
+</span><span class='id identifier rubyid_list'>list</span><span class='lbracket'>[</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>2</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='lbracket'>[</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>X</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Y</span><span class='tstring_end'>&#39;</span></span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Z</span><span class='tstring_end'>&#39;</span></span><span class='rbracket'>]</span> <span class='comment'># Replace two elements with three new elements
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;A&quot;, &quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;, &quot;D&quot;]
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># =&gt; 5
+</span></code></pre>
+
+<h3 id="label-3.+Enumerable+and+Iteration">3. Enumerable and Iteration</h3>
+
+<p>Demonstrate how it works seamlessly with standard Ruby collection methods.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_list'>list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_list'>list</span> <span class='op'>&lt;&lt;</span> <span class='int'>10</span> <span class='op'>&lt;&lt;</span> <span class='int'>20</span> <span class='op'>&lt;&lt;</span> <span class='int'>30</span> <span class='op'>&lt;&lt;</span> <span class='int'>40</span>
+
+<span class='comment'># Standard Enumerable methods work out of the box
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='lbrace'>{</span> <span class='op'>|</span><span class='id identifier rubyid_n'>n</span><span class='op'>|</span> <span class='id identifier rubyid_n'>n</span> <span class='op'>*</span> <span class='int'>2</span> <span class='rbrace'>}</span>     <span class='comment'># =&gt; [20, 40, 60, 80]
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_select'>select</span><span class='lparen'>(</span><span class='op'>&amp;</span><span class='symbol'>:even?</span><span class='rparen'>)</span>        <span class='comment'># =&gt; [10, 20, 30, 40]
+</span>
+<span class='comment'># O(n) Insertion in the middle
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='int'>2</span><span class='comma'>,</span> <span class='int'>25</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>                  <span class='comment'># =&gt; [10, 20, 25, 30, 40]
+</span>
+<span class='comment'># O(n) Deletion by value
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='int'>20</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>                  <span class='comment'># =&gt; [10, 25, 30, 40]
+</span></code></pre>
+
+<h3 id="label-4.+Utility-2C+Inspection-2C+and+Conversion+Methods">4. Utility, Inspection, and Conversion Methods</h3>
+
+<p>This section covers the basic checks, conversions, and advanced destructive operations.</p>
+
+<pre class="code ruby"><code class="ruby">
+<span class='id identifier rubyid_list'>list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_list'>list</span> <span class='op'>&lt;&lt;</span> <span class='int'>10</span> <span class='op'>&lt;&lt;</span> <span class='int'>20</span> <span class='op'>&lt;&lt;</span> <span class='int'>30</span>
+
+<span class='comment'># --- Basic Inspection ---
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>     <span class='comment'># =&gt; 3
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span>   <span class='comment'># =&gt; 3 (alias for size)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span>   <span class='comment'># =&gt; false
+</span><span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span><span class='period'>.</span><span class='id identifier rubyid_empty?'><span class='object_link'><a href="DLinked/List.html#empty%3F-instance_method" title="DLinked::List#empty? (method)">empty?</a></span></span> <span class='comment'># =&gt; true
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_first'>first</span>    <span class='comment'># =&gt; 10 (O(1))
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_last'>last</span>     <span class='comment'># =&gt; 30 (O(1))
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>     <span class='comment'># =&gt; [10, 20, 30]
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_s'>to_s</span>     <span class='comment'># =&gt; &quot;[10, 20, 30]&quot;
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_inspect'>inspect</span>  <span class='comment'># =&gt; &quot;[10, 20, 30]&quot;
+</span>
+<span class='comment'># --- Lookup ---
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='int'>20</span><span class='rparen'>)</span> <span class='comment'># =&gt; 1
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_index'>index</span><span class='lparen'>(</span><span class='int'>99</span><span class='rparen'>)</span> <span class='comment'># =&gt; nil (Value not found)
+</span></code></pre>
+
+<h3 id="label-5.+Advanced+Insertion-2C+Deletion-2C+and+Slicing">5. Advanced Insertion, Deletion, and Slicing</h3>
+
+<p>Demonstrate non-O(1) operations that are useful for list manipulation, including the destructive slice! method.</p>
+
+<pre class="code ruby"><code class="ruby">
+
+<span class='id identifier rubyid_list'>list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_list'>list</span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>A</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>B</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>C</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>D</span><span class='tstring_end'>&#39;</span></span> <span class='op'>&lt;&lt;</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>E</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># --- O(n) Insertion ---
+</span>
+<span class='comment'># Insert at the middle (index 2)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='int'>2</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Z</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;A&quot;, &quot;B&quot;, &quot;Z&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;]
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_insert'>insert</span><span class='lparen'>(</span><span class='int'>0</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Start</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># Same as prepend (O(1))
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;Start&quot;, &quot;A&quot;, &quot;B&quot;, &quot;Z&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;]
+</span>
+<span class='comment'># --- Deletion by Value ---
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Z</span><span class='tstring_end'>&#39;</span></span><span class='rparen'>)</span> <span class='comment'># =&gt; &quot;Z&quot; (Returns the deleted value)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>        <span class='comment'># =&gt; [&quot;Start&quot;, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;]
+</span>
+<span class='comment'># --- Destructive Slicing (slice!) ---
+</span>
+<span class='comment'># Extract and remove a slice of 2 elements, starting at index 1
+</span><span class='id identifier rubyid_removed_slice'>removed_slice</span> <span class='op'>=</span> <span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>1</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>        <span class='comment'># =&gt; [&quot;Start&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;]
+</span><span class='id identifier rubyid_removed_slice'>removed_slice</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [&quot;A&quot;, &quot;B&quot;]
+</span>
+<span class='comment'># Remove one element using a range (index 2)
+</span><span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_slice!'>slice!</span><span class='lparen'>(</span><span class='int'>2</span><span class='op'>..</span><span class='int'>2</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>        <span class='comment'># =&gt; [&quot;Start&quot;, &quot;C&quot;, &quot;E&quot;]
+</span>
+<span class='id identifier rubyid_list'>list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span>        <span class='comment'># =&gt; 3
+</span></code></pre>
+
+<h3 id="label-6.+Concatenation+and+Arithmetic">6. Concatenation and Arithmetic</h3>
+
+<p>Demonstrate how lists can be combined.</p>
+
+<pre class="code ruby"><code class="ruby">
+
+<span class='id identifier rubyid_list1'>list1</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span> <span class='op'>&lt;&lt;</span> <span class='int'>1</span> <span class='op'>&lt;&lt;</span> <span class='int'>2</span>
+<span class='id identifier rubyid_list2'>list2</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/List.html" title="DLinked::List (class)">List</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/List.html#initialize-instance_method" title="DLinked::List#initialize (method)">new</a></span></span> <span class='op'>&lt;&lt;</span> <span class='int'>3</span> <span class='op'>&lt;&lt;</span> <span class='int'>4</span>
+
+<span class='comment'># Non-destructive concatenation (returns a new list)
+</span><span class='id identifier rubyid_new_list'>new_list</span> <span class='op'>=</span> <span class='id identifier rubyid_list1'>list1</span> <span class='op'>+</span> <span class='id identifier rubyid_list2'>list2</span>
+<span class='id identifier rubyid_new_list'>new_list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [1, 2, 3, 4]
+</span><span class='id identifier rubyid_list1'>list1</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>    <span class='comment'># =&gt; [1, 2] (list1 is unchanged)
+</span>
+<span class='comment'># Destructive concatenation (modifies list1)
+</span><span class='id identifier rubyid_list1'>list1</span><span class='period'>.</span><span class='id identifier rubyid_concat'>concat</span><span class='lparen'>(</span><span class='id identifier rubyid_list2'>list2</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_list1'>list1</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [1, 2, 3, 4]
+</span></code></pre>
+
+<h2 id="label-E2-9A-A1+Performance+Characteristics">⚡ Performance Characteristics</h2>
+
+<p>This library is designed to offer the guaranteed performance benefits of a Doubly Linked List over a standard Ruby <code>Array</code> for certain operations.</p>
+
+<p>| Operation | Method(s) | Complexity | Notes | | - | - | - | - | | End Insertion | append, prepend, push, unshift, &lt;&lt; | $O(1)$ | Constant time, regardless of list size. | | End Deletion | pop, shift | $O(1)$ | Constant time. | | End Access | first, last | $O(1)$ | Constant time access to boundary values. | | Middle Insertion/Deletion | insert, delete (by value), slice!, []= (slice) | $O(n)$ | Requires traversal to find the node. | | Random Access/Search | [] (getter), index | $O(n)$ | Requires traversal; average time is $O(n/2)$. |</p>
+
+<h2 id="label-F0-9F-92-BE+Memory+Usage">💾 Memory Usage</h2>
+
+<p>While memory usage is highly dependent on the objects stored, the overhead of the list structure itself is minimal and highly efficient:</p>
+<ul><li>
+<p><strong>Node Overhead:</strong> Each node in the list uses approximately 40 bytes. This includes the object header, and three necessary pointers:</p>
+<ol><li>
+<p>Pointer to the stored <strong>value</strong></p>
+</li><li>
+<p>Pointer to the <strong>next</strong> node</p>
+</li><li>
+<p>Pointer to the <strong>previous</strong> node</p>
+</li></ol>
+</li><li>
+<p><strong>Efficiency Advantage:</strong> This structured overhead is often more memory-efficient than a large Ruby <code>Array</code> that requires constant reallocation and copying when its capacity is exceeded, especially if the <code>Array</code> is being modified frequently at the head.</p>
+</li></ul>
+
+<h2 id="label-License">License</h2>
+
+<p>MIT License. See LICENSE.txt for details.</p>
+</div></div>
+
+      <div id="footer">
+  Generated on Fri Dec 12 20:34:20 2025 by
+  <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.38 (ruby-3.3.10).
+</div>
+
+    </div>
+  </body>
+</html>
