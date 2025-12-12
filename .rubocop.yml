@@ -1,0 +1,45 @@
+# .rubocop.yml
+
+# We'll use the default Rubocop configuration as a starting point.
+inherit_gem:
+  rubocop-minitest:
+    - config/default.yml
+
+require:
+  - rubocop-minitest # Good practice since you are using Minitest
+
+AllCops:
+  # Exclude the gem build artifacts, configuration files, etc.
+  Exclude:
+    - 'dlinked-*.gem'
+    - 'vendor/**/*'
+    - 'bin/**/*'
+    - 'node_modules/**/*'
+    - 'pkg/**/*'
+    - 'Rakefile' # Often contains unique logic
+    - 'dlinked.gemspec'
+
+  # Target Ruby version is often set here
+  TargetRubyVersion: 3.1 # Set this to the version you are primarily developing on
+
+# --- Specific Cops Configuration ---
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+Metrics/BlockLength:
+  # Allows longer blocks, often needed for test files
+  Exclude:
+    - 'test/**/*.rb'
+    - 'benchmark.rb'
+  Max: 100
+
+Metrics/MethodLength:
+  # Your list.rb methods are complex due to assignment/slice logic
+  Exclude:
+    - 'lib/d_linked/list.rb'
+  Max: 20
+
+# Allow documentation for public methods to be required
+Documentation:
+  Enabled: false

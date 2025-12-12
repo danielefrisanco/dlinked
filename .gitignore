@@ -66,3 +66,18 @@ Gemfile.lock
 # OS files
 .DS_Store
 Thumbs.db
+# --- Ruby Gem/Bundler Artifacts ---
+# Ignores the compiled .gem file (which should be built on CI/release)
+*.gem
+# Ignores the cached extension files
+/ext/**/tmp
+/ext/**/objects
+/ext/**/gems
+
+# --- Test/Coverage Reports ---
+# SimpleCov coverage output directory
+/coverage
+
+# --- Documentation Artifacts (YARD/RDoc) ---
+# When you generate API documentation, it creates this folder
+/doc
