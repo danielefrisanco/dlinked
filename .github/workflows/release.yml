@@ -104,8 +104,8 @@ jobs:
       with:
         ruby-version: 3.3 # Use the latest version for publishing
         bundler-cache: false # We only need the runtime
-    - name: Setup RubyGems Authentication
-      uses: rubygems/configure-rubygems-credentials@v1
+    - name: Setup RubyGems Authentication (Official, Master Branch)
+      uses: rubygems/configure-rubygems-credentials@master
       with:
         api_key: ${{ secrets.RUBYGEMS_API_KEY }}
     - name: Download Gem Artifact
