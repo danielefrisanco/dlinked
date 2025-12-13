@@ -98,16 +98,16 @@ jobs:
     steps:
     - name: Checkout Code (Needed to access config)
       uses: actions/checkout@v4
-
+    - name: Set up RubyGems credentials
+      run: |
+        mkdir -p ~/.gem
+        echo ":rubygems_api_key: ${{ secrets.RUBYGEMS_API_KEY }}" > ~/.gem/credentials
+        chmod 0600 ~/.gem/credentials
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: 3.3 # Use the latest version for publishing
         bundler-cache: false # We only need the runtime
-    - name: Setup RubyGems Authentication (Official, Master Branch)
-      uses: rubygems/configure-rubygems-credentials@master
-      with:
-        api_key: ${{ secrets.RUBYGEMS_API_KEY }}
     - name: Download Gem Artifact
       uses: actions/download-artifact@v4
       with:
