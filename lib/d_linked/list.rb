@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require_relative 'list/node'
+
 module DLinked
   # A fast, lightweight doubly linked list implementation
   class List
     include Enumerable
 
     # PURE PERFORMANCE: We now use the dedicated Class for Node,
-    Node = DLinked::List::Node
-    private_constant :Node
+    # Node = DLinked::List::Node
 
     attr_reader :size
     alias length size
@@ -29,11 +29,7 @@ module DLinked
     # @return [self] Returns the list instance, allowing for method chaining (e.g., list.prepend(1).prepend(2)).
     def prepend(value)
       node = Node.new(value, nil, @head)
-      @head.prev = node if @head
-      @head = node
-      @tail ||= node
-      @size += 1
-      self
+      list_prepend_logic(node)
     end
     alias unshift prepend
       
@@ -45,11 +41,7 @@ module DLinked
     # @return [DLinked::List] Returns the list instance for method chaining.
     def append(value)
       node = Node.new(value, @tail, nil)
-      @tail.next = node if @tail
-      @tail = node
-      @head ||= node
-      @size += 1
-      self
+      list_append_logic(node)
     end
     alias push append
     alias << append
@@ -366,10 +358,12 @@ module DLinked
       return prepend(value) if index <= 0
       return append(value) if index >= @size
 
+      # Find the node to insert BEFORE
       current = find_node_at_index(index)
 
-      # Insert before current node (O(1) linking)
       new_node = Node.new(value, current.prev, current)
+
+      # Insert before current node (O(1) linking)
       current.prev.next = new_node
       current.prev = new_node
 
@@ -542,6 +536,24 @@ module DLinked
 
       @size -= removed_count
       result.empty? ? nil : result
+    end
+    protected
+
+    # This method handles the actual pointer manipulation, which is constant across all subclasses
+    def list_prepend_logic(node)
+      @head.prev = node if @head
+      @head = node
+      @tail ||= node
+      @size += 1
+      self
+    end
+
+    def list_append_logic(node)
+      @tail.next = node if @tail
+      @tail = node
+      @head ||= node
+      @size += 1
+      self
     end
 
     private

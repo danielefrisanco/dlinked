@@ -6,9 +6,9 @@ A fast, lightweight doubly linked list implementation for Ruby.
 
 - **Lightweight**: Minimal memory footprint using optimized node class
 - **Fast**: O(1) operations for insertion/deletion at both ends
-- **Ruby-native**: Includes Enumerable for full integration with Ruby
+- **Ruby-native**: Includes `Enumerable` for full integration with Ruby
 - **Bidirectional**: Iterate forward or backward efficiently
-
+- **LRU-Ready**: Includes the specialized `DLinked::CacheList` subclass, which integrates a hash map for O(1) LRU cache management (access, insertion, eviction).
 
 ## Installation
 
@@ -27,7 +27,7 @@ gem install dlinked
 ## Test
 
 ```bash
-bundle exec ruby test/test_d_linked_list.rb
+bundle exec rake test
 
 ```
 
@@ -189,6 +189,58 @@ list1.concat(list2)
 list1.to_a # => [1, 2, 3, 4]
 ```
 
+
+### 7. DLinked::CacheList (LRU Cache Utility)
+`DLinked::CacheList` is a specialized subclass of `DLinked::List` designed to be the backbone of a **Least Recently Used (LRU) cache**. It combines a doubly linked list with a hash map to provide **O(1)**time complexity for all critical LRU cache operations. All core key management methods have **O(1)** complexity:
+- #prepend_key(key, value) (Add as MRU)
+- #move_to_head_by_key(key) (Touch/Access)
+- #pop_key (Evict LRU)
+- #remove_by_key(key) (Remove)
+
+- **Most Recently Used (MRU)** items are at the **head** of the list.
+- **Least Recently Used (LRU)** items are at the **tail** of the list.
+
+This makes it highly efficient for tracking key access order in a memory-limited cache.
+
+```ruby
+require 'dlinked'
+
+# 1. Initialization
+lru_list = DLinked::CacheList.new
+lru_list.size # => 0
+
+# 2. Add keys to the cache (as MRU)
+# In a real cache, the value might be the cached data itself.
+# For key tracking, value can be the same as the key.
+lru_list.prepend_key(:key1, :key1)
+lru_list.prepend_key(:key2, :key2)
+lru_list.prepend_key(:key3, :key3)
+
+# List order (MRU to LRU): [:key3, :key2, :key1]
+lru_list.to_a # => [:key3, :key2, :key1]
+
+# 3. "Touch" an existing key, moving it to the head (MRU)
+lru_list.move_to_head_by_key(:key1)
+
+# List order is now: [:key1, :key3, :key2]
+lru_list.to_a # => [:key1, :key3, :key2]
+
+# 4. Evict the least recently used key (from the tail)
+evicted_key = lru_list.pop_key
+evicted_key # => :key2
+
+# List order is now: [:key1, :key3]
+lru_list.to_a # => [:key1, :key3]
+
+# 5. Remove a specific key (O(1) operation)
+lru_list.remove_by_key(:key3)
+lru_list.to_a # => [:key1]
+
+# 6. Clear the list and the key map (O(1) operation)
+lru_list.clear
+lru_list.size # => 0
+
+```
 ## ⚡ Performance Characteristics
 This library is designed to offer the guaranteed performance benefits of a Doubly Linked List over a standard Ruby `Array` for certain operations.
 

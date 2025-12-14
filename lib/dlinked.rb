@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'd_linked/version'
-require_relative 'd_linked/list'
+
+require_relative 'd_linked/list' 
+
+require_relative 'd_linked/cache_list' 
 
 module DLinked
-  # The DLinked module serves as the namespace for the gem.
+  # Namespace definition is fine here, it just re-opens the module.
 end
