@@ -68,9 +68,11 @@
 </li><li>
 <p><strong>Fast</strong>: O(1) operations for insertion/deletion at both ends</p>
 </li><li>
-<p><strong>Ruby-native</strong>: Includes Enumerable for full integration with Ruby</p>
+<p><strong>Ruby-native</strong>: Includes <code>Enumerable</code> for full integration with Ruby</p>
 </li><li>
 <p><strong>Bidirectional</strong>: Iterate forward or backward efficiently</p>
+</li><li>
+<p><strong>LRU-Ready</strong>: Includes the specialized <code>DLinked::CacheList</code> subclass, which integrates a hash map for O(1) LRU cache management (access, insertion, eviction).</p>
 </li></ul>
 
 <h2 id="label-Installation">Installation</h2>
@@ -87,7 +89,7 @@
 
 <h2 id="label-Test">Test</h2>
 
-<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_ruby'>ruby</span> <span class='id identifier rubyid_test'>test</span><span class='op'>/</span><span class='id identifier rubyid_test_d_linked_list'>test_d_linked_list</span><span class='period'>.</span><span class='id identifier rubyid_rb'>rb</span>
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_rake'>rake</span> <span class='id identifier rubyid_test'>test</span>
 </code></pre>
 
 <h2 id="label-Usage">Usage</h2>
@@ -247,6 +249,55 @@
 <span class='id identifier rubyid_list1'>list1</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [1, 2, 3, 4]
 </span></code></pre>
 
+<h3 id="label-7.+DLinked-3A-3ACacheList+-28LRU+Cache+Utility-29">7. DLinked::CacheList (LRU Cache Utility)</h3>
+
+<p><code>DLinked::CacheList</code> is a specialized subclass of <code>DLinked::List</code> designed to be the backbone of a <strong>Least Recently Used (LRU) cache</strong>. It combines a doubly linked list with a hash map to provide <strong>O(1)</strong>time complexity for all critical LRU cache operations. All core key management methods have <strong>O(1)</strong> complexity: - #prepend_key(key, value) (Add as MRU) - #move_to_head_by_key(key) (Touch/Access) - #pop_key (Evict LRU) - #remove_by_key(key) (Remove)</p>
+<ul><li>
+<p><strong>Most Recently Used (MRU)</strong> items are at the <strong>head</strong> of the list.</p>
+</li><li>
+<p><strong>Least Recently Used (LRU)</strong> items are at the <strong>tail</strong> of the list.</p>
+</li></ul>
+
+<p>This makes it highly efficient for tracking key access order in a memory-limited cache.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_require'>require</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>dlinked</span><span class='tstring_end'>&#39;</span></span>
+
+<span class='comment'># 1. Initialization
+</span><span class='id identifier rubyid_lru_list'>lru_list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/CacheList.html" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/CacheList.html#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># =&gt; 0
+</span>
+<span class='comment'># 2. Add keys to the cache (as MRU)
+</span><span class='comment'># In a real cache, the value might be the cached data itself.
+</span><span class='comment'># For key tracking, value can be the same as the key.
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:key1</span><span class='comma'>,</span> <span class='symbol'>:key1</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:key2</span><span class='comma'>,</span> <span class='symbol'>:key2</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:key3</span><span class='comma'>,</span> <span class='symbol'>:key3</span><span class='rparen'>)</span>
+
+<span class='comment'># List order (MRU to LRU): [:key3, :key2, :key1]
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [:key3, :key2, :key1]
+</span>
+<span class='comment'># 3. &quot;Touch&quot; an existing key, moving it to the head (MRU)
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='symbol'>:key1</span><span class='rparen'>)</span>
+
+<span class='comment'># List order is now: [:key1, :key3, :key2]
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [:key1, :key3, :key2]
+</span>
+<span class='comment'># 4. Evict the least recently used key (from the tail)
+</span><span class='id identifier rubyid_evicted_key'>evicted_key</span> <span class='op'>=</span> <span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_pop_key'>pop_key</span>
+<span class='id identifier rubyid_evicted_key'>evicted_key</span> <span class='comment'># =&gt; :key2
+</span>
+<span class='comment'># List order is now: [:key1, :key3]
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [:key1, :key3]
+</span>
+<span class='comment'># 5. Remove a specific key (O(1) operation)
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_remove_by_key'>remove_by_key</span><span class='lparen'>(</span><span class='symbol'>:key3</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [:key1]
+</span>
+<span class='comment'># 6. Clear the list and the key map (O(1) operation)
+</span><span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
+<span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># =&gt; 0
+</span></code></pre>
+
 <h2 id="label-E2-9A-A1+Performance+Characteristics">⚡ Performance Characteristics</h2>
 
 <p>This library is designed to offer the guaranteed performance benefits of a Doubly Linked List over a standard Ruby <code>Array</code> for certain operations.</p>
@@ -275,7 +326,7 @@
 </div></div>
 
       <div id="footer">
-  Generated on Sat Dec 13 20:11:10 2025 by
+  Generated on Sun Dec 14 18:04:43 2025 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.3.10).
 </div>
