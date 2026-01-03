@@ -92,6 +92,15 @@
 <pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_rake'>rake</span> <span class='id identifier rubyid_test'>test</span>
 </code></pre>
 
+<h2 id="label-Documentation">Documentation</h2>
+
+<p>To generate the YARD documentation for this project, run:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_yard'>yard</span> <span class='id identifier rubyid_doc'>doc</span>
+</code></pre>
+
+<p>This will create a <code>doc/</code> directory containing the full HTML documentation. You can view it by opening <code>doc/index.html</code> in your browser.</p>
+
 <h2 id="label-Usage">Usage</h2>
 
 <h3 id="label-1.+Basic+Initialization+and+O-281-29+Operations">1. Basic Initialization and O(1) Operations</h3>
@@ -298,11 +307,113 @@
 <span class='id identifier rubyid_lru_list'>lru_list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='comment'># =&gt; 0
 </span></code></pre>
 
+<h3 id="label-Real-World+Example-3A+A+Complete+LRU+Cache">Real-World Example: A Complete LRU Cache</h3>
+
+<p>While <code>DLinked::CacheList</code> provides the low-level, high-performance key tracking, you can easily build a complete, practical <code>LRUCache</code> class around it.</p>
+
+<p>The following example demonstrates how to combine <code>DLinked::CacheList</code> with a <code>Hash</code> for data storage to create a fully functional LRU cache.</p>
+
+<pre class="code ruby"><code class="ruby"><span class='comment'># A complete, working implementation of a Least Recently Used (LRU) Cache
+</span><span class='comment'># built on top of DLinked::CacheList.
+</span><span class='kw'>class</span> <span class='const'>LRUCache</span>
+  <span class='id identifier rubyid_attr_reader'>attr_reader</span> <span class='symbol'>:capacity</span><span class='comma'>,</span> <span class='symbol'>:size</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_capacity'>capacity</span><span class='rparen'>)</span>
+    <span class='id identifier rubyid_raise'>raise</span> <span class='const'>ArgumentError</span><span class='comma'>,</span> <span class='tstring'><span class='tstring_beg'>&#39;</span><span class='tstring_content'>Capacity must be a positive integer</span><span class='tstring_end'>&#39;</span></span> <span class='kw'>unless</span> <span class='id identifier rubyid_capacity'>capacity</span><span class='period'>.</span><span class='id identifier rubyid_is_a?'>is_a?</span><span class='lparen'>(</span><span class='const'>Integer</span><span class='rparen'>)</span> <span class='op'>&amp;&amp;</span> <span class='id identifier rubyid_capacity'>capacity</span> <span class='op'>&gt;</span> <span class='int'>0</span>
+
+    <span class='ivar'>@capacity</span> <span class='op'>=</span> <span class='id identifier rubyid_capacity'>capacity</span>
+    <span class='ivar'>@size</span> <span class='op'>=</span> <span class='int'>0</span>
+    <span class='ivar'>@list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="DLinked/CacheList.html" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="DLinked/CacheList.html#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+    <span class='ivar'>@data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='ivar'>@data</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+      <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+      <span class='ivar'>@size</span> <span class='op'>+=</span> <span class='int'>1</span>
+      <span class='id identifier rubyid_evict'>evict</span> <span class='kw'>if</span> <span class='ivar'>@size</span> <span class='op'>&gt;</span> <span class='ivar'>@capacity</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@data</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_evict'>evict</span>
+    <span class='id identifier rubyid_lru_key'>lru_key</span> <span class='op'>=</span> <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_pop_key'>pop_key</span>
+    <span class='kw'>return</span> <span class='kw'>unless</span> <span class='id identifier rubyid_lru_key'>lru_key</span>
+    <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_lru_key'>lru_key</span><span class='rparen'>)</span>
+    <span class='ivar'>@size</span> <span class='op'>-=</span> <span class='int'>1</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span>
+</code></pre>
+
+<p>For a complete, runnable demonstration of this <code>LRUCache</code> class in action, see the <a href="./lru_cache_example_rb.html">lru_cache_example.rb</a> file.</p>
+
 <h2 id="label-E2-9A-A1+Performance+Characteristics">⚡ Performance Characteristics</h2>
 
 <p>This library is designed to offer the guaranteed performance benefits of a Doubly Linked List over a standard Ruby <code>Array</code> for certain operations.</p>
 
 <p>| Operation | Method(s) | Complexity | Notes | | - | - | - | - | | End Insertion | append, prepend, push, unshift, &lt;&lt; | $O(1)$ | Constant time, regardless of list size. | | End Deletion | pop, shift | $O(1)$ | Constant time. | | End Access | first, last | $O(1)$ | Constant time access to boundary values. | | Middle Insertion/Deletion | insert, delete (by value), slice!, []= (slice) | $O(n)$ | Requires traversal to find the node. | | Random Access/Search | [] (getter), index | $O(n)$ | Requires traversal; average time is $O(n/2)$. |</p>
+
+<h2 id="label-E2-9A-A1+Performance+Benchmarks">⚡ Performance Benchmarks</h2>
+
+<p>To quantify the performance benefits of <code>DLinked::List</code> over Ruby’s <code>Array</code>, a benchmark suite is available in <code>benchmark.rb</code>. It uses the <code>benchmark-ips</code> gem to compare the performance of single operations on a pre-filled data structure of 10,000 items.</p>
+
+<p>The benchmark measures a single operation (e.g., <code>shift</code>) and immediately performs the inverse operation (e.g., <code>push</code>) to ensure the list size remains constant for every measurement. This provides a more accurate comparison of how each data structure handles these calls on a large collection.</p>
+
+<p>You can run the benchmark yourself:</p>
+
+<pre class="code ruby"><code class="ruby"><span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_install'>install</span>
+<span class='id identifier rubyid_bundle'>bundle</span> <span class='id identifier rubyid_exec'>exec</span> <span class='id identifier rubyid_ruby'>ruby</span> <span class='id identifier rubyid_benchmark'>benchmark</span><span class='period'>.</span><span class='id identifier rubyid_rb'>rb</span>
+</code></pre>
+
+<p><strong>Results:</strong></p>
+
+<p>The results below were generated on Ruby 3.1.4. They demonstrate that for a list of 10,000 items, the performance of Ruby’s native, C-implemented <code>Array</code> is significantly faster than <code>DLinked::List</code>‘s pure Ruby implementation, even for operations where the linked list has a better theoretical time complexity.</p>
+
+<table role="table">
+<thead>
+<tr>
+<th align="left">Operation</th>
+<th align="left">Comparison</th>
+<th align="left">Analysis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">‘append` / `push`</td>
+<td align="left">‘Array` is ~5.2x faster</td>
+<td align="left">‘Array` is faster. This is expected as it’s a highly optimized C implementation, while ‘DLinked::List` has the overhead of Ruby method calls and `Node` object allocation.</td>
+</tr>
+<tr>
+<td align="left">‘prepend` / `unshift`</td>
+<td align="left">‘Array` is ~5.1x faster</td>
+<td align="left">Surprisingly, ‘Array#unshift` is still faster at this scale. The cost of memory shifting in C for 10,000 items is lower than the overhead of `DLinked::List`’s Ruby implementation.</td>
+</tr>
+<tr>
+<td align="left">‘pop`</td>
+<td align="left">‘Array` is ~5.3x faster</td>
+<td align="left">Similar to ‘push`, the native `Array` implementation is faster for this O(1) operation.</td>
+</tr>
+<tr>
+<td align="left">‘shift`</td>
+<td align="left">‘Array` is ~5.4x faster</td>
+<td align="left">Like ‘unshift`, `Array#shift`’s O(n) operation in C is faster than ‘DLinked::List`’s O(1) operation in Ruby at this list size, due to the overhead of the Ruby implementation.</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Conclusion:</strong></p>
+
+<p>These benchmarks show that the raw speed of the underlying C implementation of <code>Array</code> outweighs the Big-O algorithmic advantages of a pure Ruby linked list for collections of this size. <code>DLinked::List</code> is better suited for educational purposes or for algorithms where the explicit node structure and pointer manipulation are more important than raw wall-clock performance against <code>Array</code>.</p>
 
 <h2 id="label-F0-9F-92-BE+Memory+Usage">💾 Memory Usage</h2>
 
@@ -326,7 +437,7 @@
 </div></div>
 
       <div id="footer">
-  Generated on Sun Dec 14 18:04:43 2025 by
+  Generated on Sat Jan  3 13:55:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.3.10).
 </div>

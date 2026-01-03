@@ -104,28 +104,58 @@
 <h2>Overview</h2><div class="docstring">
   <div class="discussion">
     
-<p>DLinked::CacheList</p>
+<p>A specialized doubly linked list for managing keys in a Least Recently Used (LRU) cache.</p>
 
-<p>A specialized doubly linked list subclass used as the central key management component for an in-memory LRU cache.</p>
+<p>This class extends <span class='object_link'><a href="List.html" title="DLinked::List (class)">List</a></span> by integrating a ‘Hash` map (`@lru_nodes`) to provide **O(1)** time complexity for all critical cache operations: adding, accessing (touching), evicting, and removing keys.</p>
 
-<p>It integrates a hash map (‘@lru_nodes`) to provide **O(1)** operations for:</p>
-<ul><li>
-<p>Prepending/Adding a new key (MRU).</p>
-</li><li>
-<p>Touching/Moving an existing key to the head (MRU).</p>
-</li><li>
-<p>Evicting the least recently used key (LRU).</p>
-</li><li>
-<p>Removing an item by key.</p>
-</li></ul>
-
-<p>It maintains the standard list behavior of the superclass <span class='object_link'><a href="List.html" title="DLinked::List (class)">List</a></span> but focuses on key-based operations rather than simple value manipulation.</p>
+<p>The list maintains items in order from Most Recently Used (MRU) at the head to Least Recently Used (LRU) at the tail.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+        <h5 class="example_title"><div class='inline'>
+<p>Implementing a simple LRU Cache</p>
+</div></h5>
+      
+      <pre class="example code"><code><span class='kw'>class</span> <span class='const'>MyLRUCache</span>
+  <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span><span class='lparen'>(</span><span class='id identifier rubyid_capacity'>capacity</span><span class='rparen'>)</span>
+    <span class='ivar'>@capacity</span> <span class='op'>=</span> <span class='id identifier rubyid_capacity'>capacity</span>
+    <span class='ivar'>@list</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'>CacheList</span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+    <span class='ivar'>@data</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_get'>get</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> <span class='comment'># Mark as recently used
+</span>    <span class='ivar'>@data</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
+  <span class='kw'>end</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_set'>set</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+    <span class='kw'>if</span> <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+      <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
+      <span class='id identifier rubyid_evict'>evict</span> <span class='kw'>if</span> <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_size'>size</span> <span class='op'>&gt;</span> <span class='ivar'>@capacity</span>
+    <span class='kw'>end</span>
+    <span class='ivar'>@data</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_value'>value</span>
+  <span class='kw'>end</span>
+
+  <span class='id identifier rubyid_private'>private</span>
+
+  <span class='kw'>def</span> <span class='id identifier rubyid_evict'>evict</span>
+    <span class='id identifier rubyid_lru_key'>lru_key</span> <span class='op'>=</span> <span class='ivar'>@list</span><span class='period'>.</span><span class='id identifier rubyid_pop_key'>pop_key</span>
+    <span class='ivar'>@data</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_lru_key'>lru_key</span><span class='rparen'>)</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></code></pre>
+    
+  </div>
+
 
 </div><h2>Defined Under Namespace</h2>
 <p class="children">
@@ -194,7 +224,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#clear-instance_method" title="#clear (instance method)">#<strong>clear</strong>  &#x21d2; void </a>
+      <a href="#clear-instance_method" title="#clear (instance method)">#<strong>clear</strong>  &#x21d2; self </a>
     
 
     
@@ -209,7 +239,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Clears both the doubly linked list and the internal LRU map.</p>
+<p>Clears the list and the internal key map.</p>
 </div></span>
   
 </li>
@@ -218,7 +248,7 @@
         <li class="public ">
   <span class="summary_signature">
     
-      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; void </a>
+      <a href="#initialize-instance_method" title="#initialize (instance method)">#<strong>initialize</strong>  &#x21d2; CacheList </a>
     
 
     
@@ -235,7 +265,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>Initializes a new CacheList instance.</p>
+<p>Initializes a new, empty ‘CacheList`.</p>
 </div></span>
   
 </li>
@@ -259,7 +289,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>4.</p>
+<p>Moves an existing key from its current position to the head (making it the MRU item).</p>
 </div></span>
   
 </li>
@@ -283,7 +313,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>3.</p>
+<p>Removes the Least Recently Used (LRU) item from the tail of the list.</p>
 </div></span>
   
 </li>
@@ -307,7 +337,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>2.</p>
+<p>Adds a new key-value pair to the head of the list (making it the MRU item).</p>
 </div></span>
   
 </li>
@@ -331,7 +361,7 @@
 
   
     <span class="summary_desc"><div class='inline'>
-<p>5.</p>
+<p>Removes an item from the list and map by its key.</p>
 </div></span>
   
 </li>
@@ -358,7 +388,7 @@
     <div class="method_details first">
   <h3 class="signature first" id="initialize-instance_method">
   
-    #<strong>initialize</strong>  &#x21d2; <tt>void</tt> 
+    #<strong>initialize</strong>  &#x21d2; <tt><span class='object_link'><a href="" title="DLinked::CacheList (class)">CacheList</a></span></tt> 
   
 
   
@@ -367,7 +397,7 @@
 </h3><div class="docstring">
   <div class="discussion">
     
-<p>Initializes a new CacheList instance.</p>
+<p>Initializes a new, empty ‘CacheList`.</p>
 
 
   </div>
@@ -381,13 +411,13 @@
       <pre class="lines">
 
 
-41
-42
-43
-44</pre>
+67
+68
+69
+70</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 41</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 67</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_initialize'>initialize</span>
   <span class='kw'>super</span>
@@ -431,12 +461,12 @@
       <pre class="lines">
 
 
-34
-35
-36</pre>
+64
+65
+66</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 34</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 64</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_lru_nodes'>lru_nodes</span>
   <span class='ivar'>@lru_nodes</span>
@@ -456,7 +486,7 @@
       <div class="method_details first">
   <h3 class="signature first" id="clear-instance_method">
   
-    #<strong>clear</strong>  &#x21d2; <tt>void</tt> 
+    #<strong>clear</strong>  &#x21d2; <tt>self</tt> 
   
 
   
@@ -464,14 +494,29 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <p class="note returns_void">This method returns an undefined value.</p>
-<p>Clears both the doubly linked list and the internal LRU map.</p>
+    
+<p>Clears the list and the internal key map.</p>
+
+<p>This is an **O(1)** operation.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>self</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
 
 </div><table class="source_code">
   <tr>
@@ -479,13 +524,13 @@
       <pre class="lines">
 
 
-124
-125
-126
-127</pre>
+162
+163
+164
+165</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 124</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 162</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_clear'>clear</span>
   <span class='ivar'>@lru_nodes</span><span class='period'>.</span><span class='id identifier rubyid_clear'>clear</span>
@@ -507,17 +552,28 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <ol><li>
-<p>Expose the O(1) touch operation</p>
-</li></ol>
+    
+<p>Moves an existing key from its current position to the head (making it the MRU item). This is a core “touch” operation for an LRU cache.</p>
 
-<p>Moves an existing key from its current position to the head (MRU). This is a core O(1) LRU “touch” operation.</p>
+<p>This is an **O(1)** operation.</p>
 
 
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_lru'>lru</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:b</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='comment'># List order: [:b, :a]
+</span><span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='rparen'>)</span> <span class='comment'># &quot;touch&quot; :a
+</span><span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [1, 2] (node values), key order is now [:a, :b]</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -550,7 +606,7 @@
       
         &mdash;
         <div class='inline'>
-<p>Returns true if the move was successful, false if the key was not found.</p>
+<p>‘true` if the move was successful, `false` if the key was not found.</p>
 </div>
       
     </li>
@@ -563,24 +619,22 @@
       <pre class="lines">
 
 
-97
-98
-99
-100
-101
-102
-103
-104</pre>
+129
+130
+131
+132
+133
+134
+135</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 97</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 129</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_move_to_head_by_key'>move_to_head_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='ivar'>@lru_nodes</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_node'>node</span>
 
-  <span class='comment'># Calls the internal O(1) relocation method
-</span>  <span class='id identifier rubyid__move_to_head'>_move_to_head</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span> 
+  <span class='id identifier rubyid__move_to_head'>_move_to_head</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
   <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -599,17 +653,27 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <ol><li>
-<p>Expose a key-based pop method (for eviction)</p>
-</li></ol>
+    
+<p>Removes the Least Recently Used (LRU) item from the tail of the list.</p>
 
-<p>Removes the Least Recently Used (LRU) item from the tail of the list. This performs an O(1) removal and updates the internal hash map.</p>
+<p>This is an **O(1)** operation.</p>
 
 
   </div>
 </div>
 <div class="tags">
   
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_lru'>lru</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:b</span><span class='comma'>,</span> <span class='int'>2</span><span class='rparen'>)</span> <span class='comment'># List is now [:b, :a]
+</span><span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_pop_key'>pop_key</span> <span class='comment'># =&gt; :a</span></code></pre>
+    
+  </div>
+
 <p class="tag_title">Returns:</p>
 <ul class="return">
   
@@ -622,7 +686,7 @@
       
         &mdash;
         <div class='inline'>
-<p>Returns the key of the removed LRU item, or nil if the list is empty.</p>
+<p>The key of the removed LRU item, or ‘nil` if the list is empty.</p>
 </div>
       
     </li>
@@ -635,25 +699,23 @@
       <pre class="lines">
 
 
-81
-82
-83
-84
-85
-86
-87
-88</pre>
+107
+108
+109
+110
+111
+112
+113</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 81</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 107</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_pop_key'>pop_key</span>
-  <span class='comment'># O(1) - Base class&#39;s pop operation on the tail node
-</span>  <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='id identifier rubyid_list_pop_logic'>list_pop_logic</span> 
+  <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='id identifier rubyid_list_pop_logic'>list_pop_logic</span>
   <span class='kw'>return</span> <span class='kw'>nil</span> <span class='kw'>unless</span> <span class='id identifier rubyid_node'>node</span>
-  
+
   <span class='ivar'>@lru_nodes</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-  <span class='kw'>return</span> <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span>
+  <span class='id identifier rubyid_node'>node</span><span class='period'>.</span><span class='id identifier rubyid_key'>key</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -671,17 +733,26 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <ol><li>
-<p>Expose a key-based prepend method</p>
-</li></ol>
+    
+<p>Adds a new key-value pair to the head of the list (making it the MRU item).</p>
 
-<p>Adds a new key-value pair to the head of the list (Most Recently Used / MRU). This operation is atomic, adding the node to the list and storing the node reference in the internal hash map.</p>
+<p>This is an **O(1)** operation.</p>
 
 
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_lru'>lru</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span> <span class='comment'># =&gt; [1]</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -695,7 +766,7 @@
       
         &mdash;
         <div class='inline'>
-<p>The cache key to be managed by the LRU list.</p>
+<p>The cache key.</p>
 </div>
       
     </li>
@@ -711,7 +782,7 @@
       
         &mdash;
         <div class='inline'>
-<p>The value to store inside the list node (usually the same as the key in an LRU list).</p>
+<p>The value to store in the list node.</p>
 </div>
       
     </li>
@@ -730,7 +801,7 @@
       
         &mdash;
         <div class='inline'>
-<p>Returns true on successful insertion.</p>
+<p>‘true` on successful insertion.</p>
 </div>
       
     </li>
@@ -748,7 +819,7 @@
       
         &mdash;
         <div class='inline'>
-<p>If the key already exists in the LRU map.</p>
+<p>If the key already exists.</p>
 </div>
       
     </li>
@@ -761,41 +832,25 @@
       <pre class="lines">
 
 
-58
-59
-60
-61
-62
-63
-64
-65
-66
-67
-68
-69
-70
-71
-72
-73</pre>
+87
+88
+89
+90
+91
+92
+93
+94</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 58</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 87</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='comma'>,</span> <span class='id identifier rubyid_value'>value</span><span class='rparen'>)</span>
-  <span class='kw'>if</span> <span class='ivar'>@lru_nodes</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
-    <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Key </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'> already exists in the LRU list.</span><span class='tstring_end'>&quot;</span></span>
-  <span class='kw'>end</span>
+  <span class='id identifier rubyid_raise'>raise</span> <span class='tstring'><span class='tstring_beg'>&quot;</span><span class='tstring_content'>Key </span><span class='embexpr_beg'>#{</span><span class='id identifier rubyid_key'>key</span><span class='embexpr_end'>}</span><span class='tstring_content'> already exists in the LRU list.</span><span class='tstring_end'>&quot;</span></span> <span class='kw'>if</span> <span class='ivar'>@lru_nodes</span><span class='period'>.</span><span class='id identifier rubyid_key?'>key?</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
 
-  <span class='comment'># The specialized Node creation must happen here
-</span>  <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CacheList/Node.html" title="DLinked::CacheList::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CacheList/Node.html#initialize-instance_method" title="DLinked::CacheList::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='ivar'>@head</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span> 
-
-  <span class='comment'># Use the base class&#39;s list logic
-</span>  <span class='id identifier rubyid_list_prepend_logic'>list_prepend_logic</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
-
-  <span class='comment'># Store the node reference in the map (O(1))
-</span>  <span class='ivar'>@lru_nodes</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_node'>node</span> 
-
-  <span class='kw'>true</span> 
+  <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="CacheList/Node.html" title="DLinked::CacheList::Node (class)">Node</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="CacheList/Node.html#initialize-instance_method" title="DLinked::CacheList::Node#initialize (method)">new</a></span></span><span class='lparen'>(</span><span class='id identifier rubyid_value'>value</span><span class='comma'>,</span> <span class='kw'>nil</span><span class='comma'>,</span> <span class='ivar'>@head</span><span class='comma'>,</span> <span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_list_prepend_logic'>list_prepend_logic</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span> <span class='comment'># Use base class&#39;s logic
+</span>  <span class='ivar'>@lru_nodes</span><span class='lbracket'>[</span><span class='id identifier rubyid_key'>key</span><span class='rbracket'>]</span> <span class='op'>=</span> <span class='id identifier rubyid_node'>node</span>
+  <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
   </tr>
@@ -813,17 +868,27 @@
   
 </h3><div class="docstring">
   <div class="discussion">
-    <ol><li>
-<p>Expose O(1) removal</p>
-</li></ol>
+    
+<p>Removes an item from the list and map by its key.</p>
 
-<p>Removes an item from the list by its key. This is an O(1) operation using the stored node reference.</p>
+<p>This is an **O(1)** operation.</p>
 
 
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <h4 class="tag_title">Examples:</h4>
+    
+      
+      <pre class="example code"><code><span class='id identifier rubyid_lru'>lru</span> <span class='op'>=</span> <span class='const'><span class='object_link'><a href="../DLinked.html" title="DLinked (module)">DLinked</a></span></span><span class='op'>::</span><span class='const'><span class='object_link'><a href="" title="DLinked::CacheList (class)">CacheList</a></span></span><span class='period'>.</span><span class='id identifier rubyid_new'><span class='object_link'><a href="#initialize-instance_method" title="DLinked::CacheList#initialize (method)">new</a></span></span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_prepend_key'>prepend_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='comma'>,</span> <span class='int'>1</span><span class='rparen'>)</span>
+<span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_remove_by_key'>remove_by_key</span><span class='lparen'>(</span><span class='symbol'>:a</span><span class='rparen'>)</span> <span class='comment'># =&gt; true
+</span><span class='id identifier rubyid_lru'>lru</span><span class='period'>.</span><span class='id identifier rubyid_empty?'>empty?</span> <span class='comment'># =&gt; true</span></code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -856,7 +921,7 @@
       
         &mdash;
         <div class='inline'>
-<p>Returns true if the key was removed, false if the key was not found.</p>
+<p>‘true` if removed, `false` if the key was not found.</p>
 </div>
       
     </li>
@@ -869,24 +934,22 @@
       <pre class="lines">
 
 
-113
-114
-115
-116
-117
-118
-119
-120</pre>
+149
+150
+151
+152
+153
+154
+155</pre>
     </td>
     <td>
-      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 113</span>
+      <pre class="code"><span class="info file"># File 'lib/d_linked/cache_list.rb', line 149</span>
 
 <span class='kw'>def</span> <span class='id identifier rubyid_remove_by_key'>remove_by_key</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='id identifier rubyid_node'>node</span> <span class='op'>=</span> <span class='ivar'>@lru_nodes</span><span class='period'>.</span><span class='id identifier rubyid_delete'>delete</span><span class='lparen'>(</span><span class='id identifier rubyid_key'>key</span><span class='rparen'>)</span>
   <span class='kw'>return</span> <span class='kw'>false</span> <span class='kw'>unless</span> <span class='id identifier rubyid_node'>node</span>
-  
-  <span class='comment'># Calls the internal O(1) node deletion method
-</span>  <span class='id identifier rubyid__remove_node'>_remove_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
+
+  <span class='id identifier rubyid__remove_node'>_remove_node</span><span class='lparen'>(</span><span class='id identifier rubyid_node'>node</span><span class='rparen'>)</span>
   <span class='kw'>true</span>
 <span class='kw'>end</span></pre>
     </td>
@@ -899,7 +962,7 @@
 </div>
 
       <div id="footer">
-  Generated on Sun Dec 14 18:04:43 2025 by
+  Generated on Sat Jan  3 13:55:08 2026 by
   <a href="https://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.38 (ruby-3.3.10).
 </div>
