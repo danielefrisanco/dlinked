@@ -1,54 +1,78 @@
 # frozen_string_literal: true
 
-# benchmark.rb - Compare Struct vs Class performance
-# Run with: ruby benchmark.rb
-require 'benchmark'
+require 'benchmark/ips'
+require 'dlinked'
 
-# Struct version
-NodeStruct = Struct.new(:value, :prev, :next)
+puts "Ruby version: #{RUBY_VERSION}"
+puts "DLinked version: #{DLinked::VERSION}"
 
-# Class version
-class NodeClass
-  attr_accessor :value, :prev, :next
+LIST_SIZE = 10_000
+puts "\n--- Benchmarking single operations on a list of #{LIST_SIZE} items ---"
+puts "A single operation is performed, and then undone to maintain list size."
 
-  def initialize(value, prev_node, next_node)
-    @value = value
-    @prev = prev_node
-    @next = next_node
+# --- Setup ---
+array = (0...LIST_SIZE).to_a
+list = DLinked::List.new
+array.each { |i| list.append(i) }
+
+# --- Benchmark Suite ---
+
+puts "\nAppend/Push at the end:"
+Benchmark.ips do |x|
+  x.report("Array#push") do
+    array.push(0)
+    array.pop
   end
+
+  x.report("DLinked::List#append") do
+    list.append(0)
+    list.pop
+  end
+
+  x.compare!
 end
 
-N = 2_000_000
-
-puts "Creating and accessing #{N} nodes:\n\n"
-
-Benchmark.bm(20) do |x|
-  x.report('Class creation:') do
-    N.times { |i| NodeClass.new(i, nil, nil) }
+puts "\nPrepend/Unshift at the beginning:"
+Benchmark.ips do |x|
+  x.report("Array#unshift") do
+    array.unshift(0)
+    array.shift
   end
 
-  x.report('Struct creation:') do
-    N.times { |i| NodeStruct.new(i, nil, nil) }
+  x.report("DLinked::List#prepend") do
+    list.prepend(0)
+    list.shift
   end
 
-  # Test access speed (the important part!)
-  struct_nodes = Array.new(1000) { |i| NodeStruct.new(i, nil, nil) }
-  class_nodes = Array.new(1000) { |i| NodeClass.new(i, nil, nil) }
-
-  x.report('Class access:') do
-    N.times do
-      node = class_nodes[rand(1000)]
-      v = node.value
-      node.value = v + 1
-    end
-  end
-  x.report('Struct access:') do
-    N.times do
-      node = struct_nodes[rand(1000)]
-      v = node.value
-      node.value = v + 1
-    end
-  end
+  x.compare! 
 end
 
-puts "\nConclusion: Run this benchmark on your target Ruby version to decide!"
+puts "\nPop from the end:"
+Benchmark.ips do |x|
+  x.report("Array#pop") do
+    el = array.pop
+    array.push(el)
+  end
+
+  x.report("DLinked::List#pop") do
+    el = list.pop
+    list.append(el)
+  end
+
+  x.compare!
+end
+
+puts "\nShift from the beginning:"
+Benchmark.ips do |x|
+  x.report("Array#shift") do
+    el = array.shift
+    array.push(el)
+  end
+
+  x.report("DLinked::List#shift") do
+    el = list.shift
+    list.append(el)
+  end
+
+  x.compare!
+end

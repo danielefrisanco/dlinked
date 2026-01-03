@@ -314,6 +314,34 @@ This library is designed to offer the guaranteed performance benefits of a Doubl
 
 
 
+## ⚡ Performance Benchmarks
+
+To quantify the performance benefits of `DLinked::List` over Ruby's `Array`, a benchmark suite is available in `benchmark.rb`. It uses the `benchmark-ips` gem to compare the performance of single operations on a pre-filled data structure of 10,000 items.
+
+The benchmark measures a single operation (e.g., `shift`) and immediately performs the inverse operation (e.g., `push`) to ensure the list size remains constant for every measurement. This provides a more accurate comparison of how each data structure handles these calls on a large collection.
+
+You can run the benchmark yourself:
+
+```bash
+bundle install
+bundle exec ruby benchmark.rb
+```
+
+**Results:**
+
+The results below were generated on Ruby 3.1.4. They demonstrate that for a list of 10,000 items, the performance of Ruby's native, C-implemented `Array` is significantly faster than `DLinked::List`'s pure Ruby implementation, even for operations where the linked list has a better theoretical time complexity.
+
+| Operation | Comparison | Analysis |
+| :--- | :--- | :--- |
+| `append` / `push` | `Array` is ~5.2x faster | `Array` is faster. This is expected as it's a highly optimized C implementation, while `DLinked::List` has the overhead of Ruby method calls and `Node` object allocation. |
+| `prepend` / `unshift`| `Array` is ~5.1x faster | Surprisingly, `Array#unshift` is still faster at this scale. The cost of memory shifting in C for 10,000 items is lower than the overhead of `DLinked::List`'s Ruby implementation. |
+| `pop` | `Array` is ~5.3x faster | Similar to `push`, the native `Array` implementation is faster for this O(1) operation. |
+| `shift` | `Array` is ~5.4x faster | Like `unshift`, `Array#shift`'s O(n) operation in C is faster than `DLinked::List`'s O(1) operation in Ruby at this list size, due to the overhead of the Ruby implementation. |
+
+**Conclusion:**
+
+These benchmarks show that the raw speed of the underlying C implementation of `Array` outweighs the Big-O algorithmic advantages of a pure Ruby linked list for collections of this size. `DLinked::List` is better suited for educational purposes or for algorithms where the explicit node structure and pointer manipulation are more important than raw wall-clock performance against `Array`.
+
 ## 💾 Memory Usage
 
 While memory usage is highly dependent on the objects stored, the overhead of the list structure itself is minimal and highly efficient:
