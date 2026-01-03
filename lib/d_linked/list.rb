@@ -3,16 +3,34 @@
 require_relative 'list/node'
 
 module DLinked
-  # A fast, lightweight doubly linked list implementation
+  # A fast, lightweight, and standards-compliant doubly linked list.
+  #
+  # This class provides a memory-efficient and performant alternative to Ruby's
+  # standard `Array` for scenarios requiring frequent O(1) insertions or
+  # deletions from the ends of the list (e.g., queues, stacks).
+  #
+  # It includes the `Enumerable` module, allowing it to work seamlessly with
+  # standard Ruby collection methods like `map`, `select`, and `each`.
+  #
+  # @example Basic Usage
+  #   list = DLinked::List.new
+  #   list.append(20).prepend(10) # => [10, 20]
+  #   list.shift # => 10
+  #   list.to_a # => [20]
   class List
     include Enumerable
 
-    # PURE PERFORMANCE: We now use the dedicated Class for Node,
-    # Node = DLinked::List::Node
-
+    # @!attribute [r] size
+    #   The number of elements in the list.
+    #   @return [Integer] The count of elements.
     attr_reader :size
     alias length size
 
+    # Initializes a new, empty list.
+    #
+    # @example
+    #   list = DLinked::List.new
+    #   list.size # => 0
     def initialize
       @head = nil
       @tail = nil
@@ -23,22 +41,34 @@ module DLinked
 
     # Adds a new value to the beginning of the list (the head).
     #
-    # This is an **O(1)** operation, as it only involves updating a few pointers.
+    # This is an **O(1)** operation.
+    #
+    # @example
+    #   list = DLinked::List.new
+    #   list.prepend(10)
+    #   list.prepend(5)
+    #   list.to_a # => [5, 10]
     #
     # @param value [Object] The value to store in the new node.
-    # @return [self] Returns the list instance, allowing for method chaining (e.g., list.prepend(1).prepend(2)).
+    # @return [self] The list instance, allowing for method chaining.
     def prepend(value)
       node = Node.new(value, nil, @head)
       list_prepend_logic(node)
     end
     alias unshift prepend
-      
+
     # Adds a new value to the end of the list (the tail).
     #
-    # This is an O(1) operation.
+    # This is an **O(1)** operation.
+    #
+    # @example
+    #   list = DLinked::List.new
+    #   list.append(10)
+    #   list.append(20)
+    #   list.to_a # => [10, 20]
     #
     # @param value [Object] The value to add to the list.
-    # @return [DLinked::List] Returns the list instance for method chaining.
+    # @return [self] The list instance, for method chaining.
     def append(value)
       node = Node.new(value, @tail, nil)
       list_append_logic(node)
@@ -50,7 +80,13 @@ module DLinked
     #
     # This is an **O(1)** operation.
     #
-    # @return [Object, nil] The value of the removed element, or nil if the list is empty.
+    # @example
+    #   list = DLinked::List.new << 1 << 2
+    #   list.shift # => 1
+    #   list.shift # => 2
+    #   list.shift # => nil
+    #
+    # @return [Object, nil] The value of the removed element, or `nil` if the list is empty.
     def shift
       return nil if empty?
 
@@ -63,9 +99,15 @@ module DLinked
 
     # Removes the last element from the list (the tail) and returns its value.
     #
-    # This is an **O(1)** operation, as the tail pointer gives immediate access to the node.
+    # This is an **O(1)** operation.
     #
-    # @return [Object, nil] The value of the removed element, or nil if the list is empty.
+    # @example
+    #   list = DLinked::List.new << 1 << 2
+    #   list.pop # => 2
+    #   list.pop # => 1
+    #   list.pop # => nil
+    #
+    # @return [Object, nil] The value of the removed element, or `nil` if the list is empty.
     def pop
       return nil if empty?
 
@@ -76,20 +118,20 @@ module DLinked
       value
     end
 
-    # Returns the value of the element at the head (start) of the list.
+    # Returns the value of the element at the head of the list without removing it.
     #
     # This is an **O(1)** operation.
     #
-    # @return [Object, nil] The value of the first element, or nil if the list is empty.
+    # @return [Object, nil] The value of the first element, or `nil` if the list is empty.
     def first
       @head&.value
     end
 
-    # Returns the value of the element at the tail (end) of the list.
+    # Returns the value of the element at the tail of the list without removing it.
     #
     # This is an **O(1)** operation.
     #
-    # @return [Object, nil] The value of the last element, or nil if the list is empty.
+    # @return [Object, nil] The value of the last element, or `nil` if the list is empty.
     def last
       @tail&.value
     end
@@ -98,16 +140,16 @@ module DLinked
     #
     # This is an **O(1)** operation.
     #
-    # @return [Boolean] True if the size of the list is zero, false otherwise.
+    # @return [Boolean] `true` if the list is empty, `false` otherwise.
     def empty?
       @size.zero?
     end
 
-    # Removes all elements from the list, resetting the head, tail, and size.
+    # Removes all elements from the list.
     #
-    # This is an **O(1)** operation, as it only resets instance variables.
+    # This is an **O(1)** operation.
     #
-    # @return [self] Returns the list instance.
+    # @return [self] The cleared list instance.
     def clear
       @head = nil
       @tail = nil
@@ -117,13 +159,12 @@ module DLinked
 
     # --- O(n) ENUMERATION & LOOKUP ---
 
-    # Iterates through the list, yielding the value of each element in order.
+    # Iterates through the list, yielding the value of each element in order from head to tail.
     #
-    # This is an **O(n)** operation, as it traverses every node from head to tail.
+    # This is an **O(n)** operation.
     #
     # @yield [Object] The value of the current element.
-    # @return [self, Enumerator] Returns the list instance if a block is given, 
-    #   otherwise returns an Enumerator.
+    # @return [self, Enumerator] Returns `self` if a block is given, otherwise returns an `Enumerator`.
     def each
       return enum_for(:each) unless block_given?
 
@@ -135,14 +176,12 @@ module DLinked
       self
     end
 
-    # Iterates through the list in reverse order, yielding the value of each element 
-    # starting from the tail and moving to the head.
+    # Iterates through the list in reverse order, from tail to head.
     #
-    # This is an **O(n)** operation, as it traverses every node.
+    # This is an **O(n)** operation.
     #
     # @yield [Object] The value of the current element.
-    # @return [self, Enumerator] Returns the list instance if a block is given, 
-    #   otherwise returns an Enumerator.
+    # @return [self, Enumerator] Returns `self` if a block is given, otherwise returns an `Enumerator`.
     def reverse_each
       return enum_for(:reverse_each) unless block_given?
 
@@ -156,10 +195,10 @@ module DLinked
 
     # Finds the index of the first occurrence of a given value.
     #
-    # This is an **O(n)** operation, as it requires traversing the list from the head.
+    # This is an **O(n)** operation.
     #
     # @param value [Object] The value to search for.
-    # @return [Integer, nil] The index of the first matching element, or nil if the value is not found.
+    # @return [Integer, nil] The index of the first matching element, or `nil` if not found.
     def index(value)
       current = @head
       idx = 0
@@ -174,19 +213,18 @@ module DLinked
 
     # Converts the linked list into a standard Ruby Array.
     #
-    # This is an **O(n)** operation, as it requires iterating over every element 
-    # and allocating a new Array.
+    # This is an **O(n)** operation.
     #
-    # @return [Array] A new Array containing all elements in order.
+    # @return [Array] A new `Array` containing all elements in order.
     def to_a
       map { |v| v }
     end
 
-    # Returns a string representation of the list, resembling a standard Ruby Array.
+    # Returns a string representation of the list.
     #
-    # This is an **O(n)** operation due to the call to #to_a.
+    # This is an **O(n)** operation.
     #
-    # @return [String] The string representation (e.g., "[10, 20, 30]").
+    # @return [String] The string representation (e.g., `"[10, 20, 30]"`).
     def to_s
       "[#{to_a.join(', ')}]"
     end
@@ -194,20 +232,22 @@ module DLinked
 
     # --- O(n) ARRAY/SLICE COMPATIBILITY ---
 
-    # Retrieves the element(s) at the specified index or within a slice.
+    # @overload [](index)
+    #   Retrieves the element at a specific index.
+    #   Traversal is optimized to start from the head or tail, whichever is closer.
+    #   @param index [Integer] The index (positive or negative).
+    #   @return [Object, nil] The value at the index, or `nil` if out of bounds.
     #
-    # This method supports two primary forms of access:
-    # 1. **Single Index (O(n)):** Returns the element at a specific positive or negative index (e.g., list[2] or list[-1]).
-    # 2. **Slice Access (O(n)):** Delegates to the {#slice} method for start/length or range access (e.g., list[1, 2] or list[1..3]).
+    # @overload [](start, length)
+    #   Retrieves a slice of `length` elements starting at `start`.
+    #   @param start [Integer] The starting index.
+    #   @param length [Integer] The number of elements to retrieve.
+    #   @return [DLinked::List, nil] A new list containing the slice, or `nil` if `start` is out of bounds.
     #
-    # Traversal is optimized: for positive indices less than size/2, traversal starts from the head; 
-    # otherwise, it starts from the tail.
-    #
-    # @param args [Array] Arguments representing either a single index or slice parameters:
-    #   - `(index)` for single element access.
-    #   - `(start_index, length)` for a slice.
-    #   - `(range)` for a slice using a Range object.
-    # @return [Object, Array<Object>, nil] The value at the index, an array of values for a slice, or nil if the single index is out of bounds.
+    # @overload [](range)
+    #   Retrieves a slice using a `Range`.
+    #   @param range [Range] The range of indices to retrieve.
+    #   @return [DLinked::List] A new list containing the slice.
     def [](*args)
       # Case 1: Single Index Access (list[i])
       if args.size == 1 && args[0].is_a?(Integer)
@@ -223,27 +263,24 @@ module DLinked
       slice(*args) # Delegate to the robust slice method
     end
 
-    # Sets the value of an element at a single index or replaces a slice (range or start/length) 
-    # with new element(s).
+    # @overload []=(index, value)
+    #   Sets the value of an element at a single index.
+    #   @param index [Integer] The index to modify.
+    #   @param value [Object] The new value.
+    #   @return [Object, nil] The assigned value, or `nil` if the index is out of bounds.
     #
-    # This method handles four main scenarios:
-    # 1. Single Element Assignment (O(n)): Overwrites the value at a valid index.
-    # 2. Slice Replacement (O(n)): Deletes a section and inserts new elements.
-    # 3. Out-of-Bounds Append (O(k)): If the start index is greater than the current size, 
-    #    the new elements are appended to the list (k is the length of the replacement).
-    # 4. Out-of-Bounds Non-Append (Returns nil): For a single index assignment that is out of bounds, 
-    #    it returns nil (like a standard Ruby Array setter).
+    # @overload []=(start, length, value)
+    #   Replaces a slice of `length` elements starting at `start` with a new value (or values).
+    #   @param start [Integer] The starting index.
+    #   @param length [Integer] The number of elements to replace.
+    #   @param value [Object, Array<Object>] The new value(s).
+    #   @return [Object, Array<Object>] The assigned value(s).
     #
-    # The overall complexity is **O(n + k)**, where n is the traversal time to find the start point, 
-    # and k is the number of elements being inserted or deleted.
-    #
-    # @param args [Array] The arguments defining the assignment. The last element of this array 
-    #   is always the replacement value.
-    #   - `(index, replacement)` for single assignment.
-    #   - `(start_index, length, replacement)` for slice replacement.
-    #   - `(range, replacement)` for range replacement.
-    # @return [Object, Array, nil] The value(s) assigned, or nil if the assignment failed 
-    #   due to an invalid out-of-bounds single index.
+    # @overload []=(range, value)
+    #   Replaces a slice defined by a `Range` with a new value (or values).
+    #   @param range [Range] The range of indices to replace.
+    #   @param value [Object, Array<Object>] The new value(s).
+    #   @return [Object, Array<Object>] The assigned value(s).
     def []=(*args)
       replacement = args.pop
 
@@ -251,20 +288,14 @@ module DLinked
       if args.size == 1 && args[0].is_a?(Integer)
         index = args[0]
         index += @size if index.negative?
-        # Check bounds for simple assignment (Must be within 0 to size-1)
         return nil unless index >= 0 && index < @size
 
-        # Simple assignment: O(n) lookup, O(1) set
         node = find_node_at_index(index)
         node.value = replacement
         return replacement
-
-        # For out-of-bounds, Array compatibility is usually IndexError, but
-        # based on your design, we return nil
-
       end
 
-      # 2. Handle Slice Replacement (list[2, 3] = [a, b] or list[2..4] = [a, b])
+      # 2. Handle Slice Replacement
       start_index, length = *args
 
       if args.size == 1 && start_index.is_a?(Range)
@@ -285,20 +316,17 @@ module DLinked
 
       replacement = Array(replacement)
 
-      # Find Boundaries
       predecessor = start_index.positive? ? find_node_at_index(start_index - 1) : nil
       current = predecessor ? predecessor.next : @head
 
       deleted_count = 0
       length.times do
         break unless current
-
         current = current.next
         deleted_count += 1
       end
       successor = current
 
-      # Stage 1: DELETION (Relink the neighbors)
       if predecessor
         predecessor.next = successor
       else
@@ -312,43 +340,37 @@ module DLinked
       end
       @size -= deleted_count
 
-      # Stage 2: INSERTION (Insert new nodes at the boundary)
       insertion_point = predecessor
       replacement.each do |value|
         new_node = Node.new(value, insertion_point, successor)
-
         if insertion_point
           insertion_point.next = new_node
         else
           @head = new_node
         end
-
         insertion_point = new_node
         @size += 1
       end
 
-      # Stage 3: FINAL RELINKING (The last inserted node links back to the successor)
       if successor
         successor.prev = insertion_point
       else
         @tail = insertion_point
       end
 
-      replacement # Return the set values
+      replacement
     end
 
     # Inserts a new element at the specified index.
     #
-    # If the index is 0, this is equivalent to {#prepend} (O(1)).
-    # If the index is equal to or greater than the size, this is equivalent to {#append} (O(1)).
-    # For all other valid indices, this is an **O(n)** operation as it requires traversal 
-    # to find the insertion point.
+    # This is an **O(n)** operation, unless inserting at the head (`index` = 0)
+    # or tail (`index` >= `size`), in which case it is **O(1)**.
     #
-    # Supports negative indices, where list.insert(-1, value) inserts before the last element.
-    #
-    # @param index [Integer] The index before which the new element should be inserted.
-    # @param value [Object] The value to be inserted.
-    # @return [DLinked::List] Returns the list instance for method chaining.
+    # @param index [Integer] The index before which to insert the new element.
+    # @param value [Object] The value to insert.
+    # @return [self] The list instance for method chaining.
+    # @see #prepend
+    # @see #append
     def insert(index, value)
       if index.negative?
         index += @size
@@ -358,12 +380,8 @@ module DLinked
       return prepend(value) if index <= 0
       return append(value) if index >= @size
 
-      # Find the node to insert BEFORE
       current = find_node_at_index(index)
-
       new_node = Node.new(value, current.prev, current)
-
-      # Insert before current node (O(1) linking)
       current.prev.next = new_node
       current.prev = new_node
 
@@ -371,13 +389,12 @@ module DLinked
       self
     end
 
-    # Deletes the *first* node that matches the given value and returns the value of the deleted element.
+    # Deletes the *first* node that matches the given value.
     #
-    # This is an **O(n)** operation because it requires traversal to find the node. 
-    # However, once the node is found, the relinking operation is O(1).
+    # This is an **O(n)** operation.
     #
     # @param value [Object] The value to search for and delete.
-    # @return [Object, nil] The value of the deleted element, or nil if the value was not found in the list.
+    # @return [Object, nil] The value of the deleted element, or `nil` if not found.
     def delete(value)
       current = @head
       while current
@@ -390,13 +407,13 @@ module DLinked
       nil
     end
 
-    # Concatenates the elements of another DLinked::List to the end of this list, modifying the current list.
+    # Appends the elements of another list to this one (destructive).
     #
-    # This is an **O(n)** operation, where n is the size of the *other* list, as it must traverse and link
-    # every element of the other list into the current list structure.
+    # This is an **O(k)** operation, where `k` is the size of the `other` list.
     #
-    # @param other [DLinked::List] The list whose elements will be appended.
-    # @return [self] Returns the modified list instance.
+    # @param other [#each] An enumerable object to append.
+    # @return [self] The modified list instance.
+    # @raise [TypeError] if `other` is not enumerable.
     def concat(other)
       raise TypeError, "can't convert #{other.class} into DLinked::List" unless other.respond_to?(:each)
       return self if other.empty?
@@ -405,14 +422,13 @@ module DLinked
       self
     end
 
-    # Returns a new DLinked::List that is the concatenation of this list and another list.
+    # Returns a new list by concatenating this list with another (non-destructive).
     #
-    # This is a non-destructive operation, meaning neither the current list nor the other list is modified.
-    # The complexity is **O(n + k)**, where n is the size of the current list and k is the size of the other list, 
-    # as both must be traversed and copied into the new list.
+    # The complexity is **O(n + k)**, where `n` is the size of this list and `k`
+    # is the size of the `other` list.
     #
-    # @param other [DLinked::List] The list to append to this one.
-    # @return [DLinked::List] A new list containing all elements from both lists.
+    # @param other [#each] The enumerable object to concatenate.
+    # @return [DLinked::List] A new list containing all elements from both.
     def +(other)
       new_list = self.class.new
       each { |value| new_list.append(value) }
@@ -420,41 +436,37 @@ module DLinked
       new_list
     end
 
-    # Extracts a slice of elements from the list, returning a new DLinked::List instance.
+    # @overload slice(index)
+    #   Extracts a single element at `index` and returns it in a new list.
+    #   @param index [Integer] The index to retrieve.
+    #   @return [DLinked::List, nil] A new list with one element, or `nil` if out of bounds.
     #
-    # Supports slicing via:
-    # 1. Start index and length (e.g., list.slice(1, 2))
-    # 2. Range (e.g., list.slice(1..3))
+    # @overload slice(start, length)
+    #   @param start [Integer] The starting index.
+    #   @param length [Integer] The number of elements in the slice.
+    #   @return [DLinked::List, nil] A new list, or `nil` if `start` is out of bounds.
     #
-    # This is an **O(n)** operation, where n is the traversal time to find the start point, 
-    # plus the time to copy the slice elements into a new list.
-    #
-    # @param start [Integer, Range] The starting index or a Range object defining the slice.
-    # @param length [Integer, nil] The number of elements to include in the slice.
-    # @return [DLinked::List, nil] A new list containing the sliced elements, or nil if the slice is out of bounds.
+    # @overload slice(range)
+    #   @param range [Range] A range of indices.
+    #   @return [DLinked::List] A new list.
     def slice(start, length = nil)
-      # Handle Range Argument
       if start.is_a?(Range) && length.nil?
         range = start
         start = range.begin
         length = range.end - range.begin + (range.exclude_end? ? 0 : 1)
       end
 
-      # 1. Resolve start index (including negative indices)
       start += @size if start.negative?
-
       return nil if start.negative? || start >= @size
 
       if length.nil?
         node = find_node_at_index(start)
         new_list = self.class.new
         new_list.append(node.value)
-        return new_list # Returns DLinked::List: [value]
+        return new_list
       end
 
-      # Handle negative length returning nil
-      return nil if length.negative?
-      return List.new if length.zero?
+      return List.new if length.negative?
 
       new_list = List.new
       current = find_node_at_index(start)
@@ -469,19 +481,18 @@ module DLinked
       new_list
     end
 
-    # Extracts and removes a slice of elements from the list, returning a new list 
-    # containing the removed elements.
+    # Extracts and removes a slice of elements, returning the removed slice as a new list.
     #
-    # Supports destructive slicing via:
-    # 1. Start index and length (e.g., list.slice!(1, 2))
-    # 2. Range (e.g., list.slice!(1..3))
+    # This is an **O(n)** operation.
     #
-    # The complexity is **O(n + k)**, where n is the traversal time to find the start point, 
-    # and k is the number of elements removed/copied.
+    # @overload slice!(start, length)
+    #   @param start [Integer] The starting index.
+    #   @param length [Integer] The number of elements to remove.
+    #   @return [DLinked::List, nil] A new list with the removed elements, or `nil` if the slice is empty.
     #
-    # @param args [Array] Arguments representing the slice: (start_index, length) or (range).
-    # @return [DLinked::List, nil] A new list containing the extracted and removed elements, 
-    #   or nil if the slice is empty or invalid.
+    # @overload slice!(range)
+    #   @param range [Range] The range of indices to remove.
+    #   @return [DLinked::List, nil] A new list with the removed elements, or `nil` if the slice is empty.
     def slice!(*args)
       start_index, length = *args
 
@@ -504,7 +515,6 @@ module DLinked
 
       length.times do
         break unless current
-
         current = current.next
       end
       successor = current
@@ -537,9 +547,12 @@ module DLinked
       @size -= removed_count
       result.empty? ? nil : result
     end
+
     protected
 
-    # This method handles the actual pointer manipulation, which is constant across all subclasses
+    # Handles the O(1) pointer logic for prepending a node.
+    # @param node [DLinked::List::Node] The node to prepend.
+    # @return [self]
     def list_prepend_logic(node)
       @head.prev = node if @head
       @head = node
@@ -548,6 +561,9 @@ module DLinked
       self
     end
 
+    # Handles the O(1) pointer logic for appending a node.
+    # @param node [DLinked::List::Node] The node to append.
+    # @return [self]
     def list_append_logic(node)
       @tail.next = node if @tail
       @tail = node
@@ -558,7 +574,10 @@ module DLinked
 
     private
 
-    # O(n/2) - Internal helper method to find the node at a valid index.
+    # Finds the node at a valid index using an optimized O(n/2) search.
+    # @param index [Integer] The index to find.
+    # @return [DLinked::List::Node] The node at the specified index.
+    # @api private
     def find_node_at_index(index)
       # Optimization: Start from head or tail, whichever is closer
       if index <= @size / 2
@@ -571,7 +590,9 @@ module DLinked
       current
     end
 
-    # O(1) - Internal method to delete a specific node
+    # Deletes a node from the list in O(1) time.
+    # @param node [DLinked::List::Node] The node to delete.
+    # @api private
     def delete_node(node)
       if node.prev
         node.prev.next = node.next

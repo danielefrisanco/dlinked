@@ -28,8 +28,17 @@ gem install dlinked
 
 ```bash
 bundle exec rake test
-
 ```
+
+## Documentation
+
+To generate the YARD documentation for this project, run:
+
+```bash
+bundle exec yard doc
+```
+
+This will create a `doc/` directory containing the full HTML documentation. You can view it by opening `doc/index.html` in your browser.
 
 ## Usage
 ### 1. Basic Initialization and O(1) Operations
@@ -241,6 +250,57 @@ lru_list.clear
 lru_list.size # => 0
 
 ```
+
+### Real-World Example: A Complete LRU Cache
+While `DLinked::CacheList` provides the low-level, high-performance key tracking, you can easily build a complete, practical `LRUCache` class around it.
+
+The following example demonstrates how to combine `DLinked::CacheList` with a `Hash` for data storage to create a fully functional LRU cache.
+
+```ruby
+# A complete, working implementation of a Least Recently Used (LRU) Cache
+# built on top of DLinked::CacheList.
+class LRUCache
+  attr_reader :capacity, :size
+
+  def initialize(capacity)
+    raise ArgumentError, 'Capacity must be a positive integer' unless capacity.is_a?(Integer) && capacity > 0
+
+    @capacity = capacity
+    @size = 0
+    @list = DLinked::CacheList.new
+    @data = {}
+  end
+
+  def get(key)
+    return nil unless @data.key?(key)
+    @list.move_to_head_by_key(key)
+    @data[key]
+  end
+
+  def set(key, value)
+    if @data.key?(key)
+      @list.move_to_head_by_key(key)
+    else
+      @list.prepend_key(key, value)
+      @size += 1
+      evict if @size > @capacity
+    end
+    @data[key] = value
+  end
+
+  private
+
+  def evict
+    lru_key = @list.pop_key
+    return unless lru_key
+    @data.delete(lru_key)
+    @size -= 1
+  end
+end
+```
+
+For a complete, runnable demonstration of this `LRUCache` class in action, see the [lru_cache_example.rb](./lru_cache_example.rb) file.
+
 ## ⚡ Performance Characteristics
 This library is designed to offer the guaranteed performance benefits of a Doubly Linked List over a standard Ruby `Array` for certain operations.
 
